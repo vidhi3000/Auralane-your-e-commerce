@@ -1,0 +1,2 @@
+- [x] Add "Home" menu item to Navbar categories array
+- [x] Test navigation on both desktop and mobile
