@@ -13,6 +13,7 @@ import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Auth from "./pages/Auth";
+import Callback from "./pages/Callback";
 import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
 
@@ -27,7 +28,7 @@ const App = () => (
           <WishlistProvider>
             <Toaster />
             <Sonner />
-            <BrowserRouter>
+            
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/products" element={<Products />} />
@@ -37,8 +38,9 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="*" element={<NotFound />} />
+                 <Route path="/auth/callback" element={<Callback />} />
               </Routes>
-            </BrowserRouter>
+          
           </WishlistProvider>
         </CartProvider>
       </TooltipProvider>

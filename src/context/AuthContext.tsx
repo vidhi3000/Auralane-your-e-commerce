@@ -4,6 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AuthContext } from './AuthContextSetup';
 
+type AuthResponse = {
+  error: Error | null;
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -27,47 +31,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, displayName?: string) => {
-    
-
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, displayName?: string): Promise<AuthResponse> => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { display_name: displayName },
-        emailRedirectTo: `${window.location.origin}/`,
-
-      }
+        data: {
+          display_name: displayName,
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
 
-   if (error) {
-  console.error('Sign in failed:', error.message);
-  
-  // Custom messages
-  if (error.message.includes('Invalid login credentials')) {
-    toast.error('Email or password is incorrect.');
-  } else {
-    toast.error(`Sign in failed: ${error.message}`);
-  }
-  
-  return { error };
-}
-
-  };
-
-  const signIn = async (email: string, password: string) => {
-    console.log('Attempting sign in with:', email);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    console.log('Sign in response:', { data, error });
-
     if (error) {
-      console.error('Sign in error details:', error);
-      toast.error(`Sign in failed: ${error.message}`);
+      toast.error(error.message);
       return { error };
     }
 
-    toast.success('Welcome back!');
+    toast.success('Welcome! Please check your email to confirm your account.');
+    return { error: null };
+  };
+
+  const signIn = async (email: string, password: string): Promise<AuthResponse> => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast.error(error.message);
+      return { error };
+    }
+
+    toast.success('Signed in successfully');
     return { error: null };
   };
 
@@ -85,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

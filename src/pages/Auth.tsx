@@ -81,7 +81,13 @@ const Auth = () => {
           } else {
             setAuthError(error.message);
           }
+        return;
         }
+       // ✅ SIGNUP SUCCESS
+    setAuthError(null);
+    // show message only
+    // toast OR UI message:
+    // "Check your email to confirm your account."
       }
     } finally {
       setIsSubmitting(false);
