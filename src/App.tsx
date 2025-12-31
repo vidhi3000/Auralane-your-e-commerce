@@ -13,10 +13,10 @@ import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Auth from "./pages/Auth";
-import Callback from "./pages/Callback";
+import AuthCallback from "@/pages/Callback";
+
 import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
-
 
 const queryClient = new QueryClient();
 
@@ -24,25 +24,28 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="light" storageKey="auralane-theme">
       <TooltipProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <Toaster />
-            <Sonner />
-            
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <Toaster />
+              <Sonner />
+
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<ProductDetails />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
-                <Route path="/auth" element={<Auth />} />
                 <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="*" element={<NotFound />} />
-                 <Route path="/auth/callback" element={<Callback />} />
+                <Route path="/auth" element={<Auth />} />
+              
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                   <Route path="*" element={<NotFound />} />
               </Routes>
-          
-          </WishlistProvider>
-        </CartProvider>
+
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

@@ -1,2 +1,5 @@
 - [x] Add "Home" menu item to Navbar categories array
 - [x] Test navigation on both desktop and mobile
+- [x] Fix Supabase email confirmation issue - AuthProvider was missing from App.tsx
+- [ ] Test email confirmation flow after fix
+- [ ] Verify signup process works end-to-end

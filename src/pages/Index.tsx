@@ -3,7 +3,8 @@ import { ArrowRight, Sparkles, Truck, RefreshCw } from 'lucide-react';
 import Layout from '@/components/Layout';
 import ProductGrid from '@/components/ProductGrid';
 import { products } from '@/data/products';
-import ProfileList from "@/pages/ProfileList";
+
+
 
 const Index = () => {
   const featuredProducts = products.slice(0, 4);
@@ -11,9 +12,6 @@ const Index = () => {
 
   return (
     <Layout>
-      
-      
-      
       
       {/* Hero Section */}
       
@@ -106,10 +104,7 @@ const Index = () => {
          {/* Profile List Section */}
   <section className="py-16 lg:py-24 bg-gray-50">
     <div className="container mx-auto px-4">
-      <h2 className="text-2xl lg:text-3xl font-display font-semibold text-foreground mb-6">
-        User Profiles
-      </h2>
-      <ProfileList />
+            
     </div>
   </section>
 

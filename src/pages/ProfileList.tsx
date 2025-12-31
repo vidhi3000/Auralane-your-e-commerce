@@ -32,9 +32,16 @@ const ProfileList = () => {
   return (
     <div>
       <h2>Profiles</h2>
-      <pre>{JSON.stringify(profiles, null, 2)}</pre>
+    {profiles.length === 0 && <p>No profiles found</p>}
+
+    {profiles.map((profile) => (
+      <div key={profile.id} style={{ marginBottom: '10px' }}>
+        <p><strong>ID:</strong> {profile.id}</p>
+        <p><strong>Created:</strong> {profile.created_at}</p>
+    </div>
+    ))}
     </div>
   );
-};
+} 
 
 export default ProfileList;
