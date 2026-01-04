@@ -73,7 +73,7 @@ const Profile = () => {
             className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-primary font-medium rounded-lg hover:bg-gold/90 transition-colors duration-200 shadow-sm"
           >
             <Home size={18} />
-            <span>Back to Home</span>
+            <span>Home</span>
           </Link>
         </div>
 

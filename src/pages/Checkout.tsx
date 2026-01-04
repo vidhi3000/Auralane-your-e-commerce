@@ -92,7 +92,7 @@ const Checkout = () => {
                 Continue Shopping
               </Link>
               <Link to="/" className="block btn-secondary">
-                Back to Home
+                Home
               </Link>
             </div>
           </div>
