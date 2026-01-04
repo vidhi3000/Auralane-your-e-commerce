@@ -57,24 +57,24 @@ const Footer = () => {
             <h4 className="text-sm font-medium tracking-wide uppercase mb-4">Help</h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-sm text-primary-foreground/70 hover:text-gold transition-fast">
+                <Link to="/shipping-returns" className="text-sm text-primary-foreground/70 hover:text-gold transition-fast">
                   Shipping & Returns
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-primary-foreground/70 hover:text-gold transition-fast">
+                <Link to="/size-guide" className="text-sm text-primary-foreground/70 hover:text-gold transition-fast">
                   Size Guide
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-primary-foreground/70 hover:text-gold transition-fast">
+                <Link to="/contact-us" className="text-sm text-primary-foreground/70 hover:text-gold transition-fast">
                   Contact Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-primary-foreground/70 hover:text-gold transition-fast">
-                  FAQ
-                </a>
+                <Link to="/help-center" className="text-sm text-primary-foreground/70 hover:text-gold transition-fast">
+                  Help Center
+                </Link>
               </li>
             </ul>
           </div>

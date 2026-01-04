@@ -1,16 +1,22 @@
 import { Link } from 'react-router-dom';
-import { Minus, Plus, X } from 'lucide-react';
+import { Minus, Plus, X, Heart } from 'lucide-react';
 import { CartItem as CartItemType } from '@/types';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface CartItemProps {
   item: CartItemType;
 }
 
-const CartItem = ({ item }: CartItemProps) => {
+  const CartItem = ({ item }: CartItemProps) => {
   const { updateQuantity, removeFromCart } = useCart();
-
+ 
+   const { user } = useAuth();
+  const { addToWishlist, isInWishlist } = useWishlist();
+  const inWishlist = isInWishlist(String(item.product.id));
   const formatPrice = (price: number) => {
+    
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -46,20 +52,36 @@ const CartItem = ({ item }: CartItemProps) => {
               {item.selectedColor && `Color: ${item.selectedColor}`}
             </p>
           </div>
-          <button
-            onClick={() => removeFromCart(item.product.id)}
-            className="p-1 text-muted-foreground hover:text-destructive transition-fast"
-            aria-label="Remove item"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex gap-2">
+            {user && (
+              <button
+                onClick={() => addToWishlist(String(item.product.id))}
+                disabled={inWishlist}
+                className={`p-1 transition-fast ${
+                  inWishlist
+                    ? 'text-gold'
+                    : 'text-muted-foreground hover:text-gold'
+                }`}
+                aria-label="Add to wishlist"
+              >
+                <Heart size={20} fill={inWishlist ? 'currentColor' : 'none'} />
+              </button>
+            )}
+            <button
+              onClick={() => removeFromCart(item.product.id, item.selectedSize, item.selectedColor)}
+              className="p-1 text-muted-foreground hover:text-destructive transition-fast"
+              aria-label="Remove item"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         <div className="mt-auto flex items-end justify-between">
           {/* Quantity Controls */}
           <div className="flex items-center border border-border rounded-md">
             <button
-              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+              onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedSize, item.selectedColor)}
               className="p-2 text-foreground hover:bg-muted transition-fast"
               aria-label="Decrease quantity"
             >
@@ -69,7 +91,7 @@ const CartItem = ({ item }: CartItemProps) => {
               {item.quantity}
             </span>
             <button
-              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+              onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedSize, item.selectedColor)}
               className="p-2 text-foreground hover:bg-muted transition-fast"
               aria-label="Increase quantity"
             >

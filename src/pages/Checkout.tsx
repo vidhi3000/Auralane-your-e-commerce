@@ -128,7 +128,7 @@ const Checkout = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Email Address
+                      Email Address <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="email"
@@ -141,7 +141,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Phone Number
+                      Phone Number <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -160,12 +160,12 @@ const Checkout = () => {
               {/* Shipping Address */}
               <div className="bg-card rounded-lg p-6 shadow-soft">
                 <h2 className="font-display text-xl font-semibold text-foreground mb-6">
-                  Shipping Address
+                  Shipping Address 
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      First Name
+                      First Name  <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -178,7 +178,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Last Name
+                      Last Name  <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -191,7 +191,7 @@ const Checkout = () => {
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Street Address
+                      Street Address <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -204,7 +204,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      City
+                      City  <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -219,7 +219,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      State
+                      State <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -232,7 +232,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      PIN Code
+                      PIN Code  <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -251,13 +251,13 @@ const Checkout = () => {
                 <div className="flex items-center gap-2 mb-6">
                   <CreditCard className="text-gold" size={20} />
                   <h2 className="font-display text-xl font-semibold text-foreground">
-                    Payment Information
+                    Payment Information 
                   </h2>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Card Number
+                      Card Number   <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -271,7 +271,7 @@ const Checkout = () => {
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Name on Card
+                      Name on Card    <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -284,7 +284,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Expiry Date
+                      Expiry Date    <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -298,7 +298,7 @@ const Checkout = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      CVV
+                      CVV    <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -320,7 +320,7 @@ const Checkout = () => {
             <div className="lg:col-span-1">
               <div className="bg-card rounded-lg p-6 shadow-soft sticky top-24">
                 <h2 className="font-display text-xl font-semibold text-foreground mb-6">
-                  Order Summary
+                  Order Summary 
                 </h2>
 
                 {/* Items */}

@@ -19,7 +19,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-      } catch (e) {}
+      } catch (e) {
+        // Ignore localStorage errors (e.g., quota exceeded)
+      }
     }
   }, [cart]);
 
@@ -54,27 +56,39 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: number, size?: string, color?: string) => {
     setCart((prevCart) => {
-      const item = prevCart.find((i) => i.product.id === productId);
+      const item = prevCart.find((i) =>
+        i.product.id === productId &&
+        i.selectedSize === size &&
+        i.selectedColor === color
+      );
       if (item) {
         toast({
           title: "Removed from cart",
           description: `${item.product.name} has been removed from your cart.`,
         });
       }
-      return prevCart.filter((item) => item.product.id !== productId);
+      return prevCart.filter((item) =>
+        !(item.product.id === productId &&
+          item.selectedSize === size &&
+          item.selectedColor === color)
+      );
     });
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: number, quantity: number, size?: string, color?: string) => {
     if (quantity < 1) {
-      removeFromCart(productId);
+      removeFromCart(productId, size, color);
       return;
     }
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
+        item.product.id === productId &&
+        item.selectedSize === size &&
+        item.selectedColor === color
+          ? { ...item, quantity }
+          : item
       )
     );
   };

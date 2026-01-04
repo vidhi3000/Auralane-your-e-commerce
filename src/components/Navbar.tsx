@@ -5,6 +5,7 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useWishlist } from '@/context/WishlistContext';
 import { useTheme } from '@/context/ThemeContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,6 +32,8 @@ const Navbar = () => {
     setIsMenuOpen(false);
     setActiveDropdown(null);
   }, [location]);
+
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +91,8 @@ const Navbar = () => {
                 >
                   <Link
                     to={category.href}
-                    className="flex items-center gap-1 py-1 px-1 text-l font-medium tracking-widest uppercase  text-black transition-base rounded-2xl border-radius-0 overflow-hidden hover:text-gold"
+                    className="flex items-center gap-1 py-1 px-1 text-l font-medium tracking-widest uppercase 
+                     text-black transition-base rounded-2xl border-radius-0 overflow-hidden hover:text-gold"
                   >
                     {category.name}
                   </Link>
@@ -109,8 +113,8 @@ const Navbar = () => {
               </span>
             </Link>
 
-            {/* Right Icons */}
-            <div className="flex items-center justify-end space-x-2 lg:space-x-4 flex-1">
+            {/* Desktop Icons */}
+            <div className="hidden lg:flex items-center justify-end space-x-4 flex-1">
               {/* Search */}
               <button
                 onClick={() => setIsSearchOpen(true)}
@@ -133,9 +137,9 @@ const Navbar = () => {
               </button>
 
               {/* Wishlist */}
-              <Link 
+              <Link
                 to="/wishlist"
-                className="hidden lg:block relative p-2 text-foreground hover:text-gold transition-base group"
+                className="relative p-2 text-foreground hover:text-gold transition-base group"
                 aria-label="Wishlist"
               >
                 <Heart size={20} strokeWidth={1.5} />
@@ -147,30 +151,19 @@ const Navbar = () => {
                 )}
               </Link>
 
-              {/* User/Auth */}
-              {user ? (
-                <button 
-                  onClick={() => signOut()}
-                  className="hidden lg:block p-2 text-foreground hover:text-gold transition-base relative group"
-                  aria-label="Sign out"
-                >
-                  <LogOut size={20} strokeWidth={1.5} />
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full" />
-                </button>
-              ) : (
-                <Link 
-                  to="/auth"
-                  className="hidden lg:block p-2 text-foreground hover:text-gold transition-base relative group"
-                  aria-label="Sign in"
-                >
-                  <User size={20} strokeWidth={1.5} />
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full" />
-                </Link>
-              )}
+              {/* User Profile */}
+              <Link
+                to="/profile"
+                className="p-2 text-foreground hover:text-gold transition-base relative group"
+                aria-label="User profile"
+              >
+                <User size={20} strokeWidth={1.5} />
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gold transition-all duration-300 group-hover:w-full" />
+              </Link>
 
               {/* Cart */}
-              <Link 
-                to="/cart" 
+              <Link
+                to="/cart"
                 className="relative p-2 text-foreground hover:text-gold transition-base group"
                 aria-label="Shopping cart"
               >
@@ -183,58 +176,155 @@ const Navbar = () => {
                 )}
               </Link>
             </div>
+
+            {/* Mobile Icons - Touch-friendly layout */}
+            <div className="flex lg:hidden items-center justify-center flex-1 max-w-[280px] mx-auto">
+              <div className="flex items-center justify-between w-full px-2">
+                {/* Search */}
+                <button
+                  onClick={() => setIsSearchOpen(true)}
+                  className="flex items-center justify-center w-11 h-11 text-foreground hover:text-gold transition-base relative group touch-manipulation"
+                  aria-label="Search"
+                >
+                  <Search size={22} strokeWidth={1.5} />
+                </button>
+
+                {/* Theme Toggle */}
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="flex items-center justify-center w-11 h-11 text-foreground hover:text-gold transition-base relative group touch-manipulation"
+                  aria-label="Toggle theme"
+                >
+                  <Sun size={22} strokeWidth={1.5} className="absolute inset-0 m-auto rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon size={22} strokeWidth={1.5} className="absolute inset-0 m-auto rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                </button>
+
+                {/* Wishlist */}
+                <Link
+                  to="/wishlist"
+                  className="flex items-center justify-center w-11 h-11 text-foreground hover:text-gold transition-base relative group touch-manipulation"
+                  aria-label="Wishlist"
+                >
+                  <Heart size={22} strokeWidth={1.5} />
+                  {wishlist.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-primary text-xs font-semibold rounded-full flex items-center justify-center animate-scale-in min-w-[20px]">
+                      {wishlist.length > 99 ? '99+' : wishlist.length}
+                    </span>
+                  )}
+                </Link>
+
+                {/* User Profile */}
+                <Link
+                  to="/profile"
+                  className="flex items-center justify-center w-11 h-11 text-foreground hover:text-gold transition-base relative group touch-manipulation"
+                  aria-label="User profile"
+                >
+                  <User size={22} strokeWidth={1.5} />
+                </Link>
+
+                {/* Cart */}
+                <Link
+                  to="/cart"
+                  className="flex items-center justify-center w-11 h-11 text-foreground hover:text-gold transition-base relative group touch-manipulation"
+                  aria-label="Shopping cart"
+                >
+                  <ShoppingBag size={22} strokeWidth={1.5} />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-primary text-xs font-semibold rounded-full flex items-center justify-center animate-scale-in min-w-[20px]">
+                      {totalItems > 99 ? '99+' : totalItems}
+                    </span>
+                  )}
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Mobile Menu */}
-        <div 
+        <div
           className={`lg:hidden overflow-hidden transition-all duration-500 ease-in-out ${
-            isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            isMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="container mx-auto px-4 pb-6 border-t border-border">
-            <div className="flex flex-col space-y-1 pt-4">
-              {categories.map((category, index) => (
-                <Link 
-                  key={category.name}
-                  to={category.href} 
-                  className="py-3 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:pl-2 transition-all duration-300 border-b border-border/50"
-                  style={{ animationDelay: `${index * 100}ms` }}
+          <div className="container mx-auto px-4 pb-6 border-t border-border bg-background">
+            <div className="flex flex-col space-y-2 pt-6">
+              {/* Navigation Categories */}
+              <div className="space-y-1 mb-4">
+                {categories.map((category, index) => (
+                  <Link
+                    key={category.name}
+                    to={category.href}
+                    className="block py-3 px-4 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:bg-muted/50 rounded-lg transition-all duration-300"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+
+              {/* User Actions */}
+              <div className="border-t border-border pt-4 space-y-2">
+                <Link
+                  to="/wishlist"
+                  className="flex items-center justify-between py-3 px-4 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:bg-muted/50 rounded-lg transition-all duration-300"
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                  {category.name}
+                  <div className="flex items-center gap-3">
+                    <Heart size={20} strokeWidth={1.5} />
+                    <span>Wishlist</span>
+                  </div>
+                  <span className="bg-gold text-primary text-sm px-2 py-1 rounded-full font-semibold">
+                    {wishlist.length}
+                  </span>
                 </Link>
-              ))}
-              <Link 
-                to="/wishlist" 
-                className="py-3 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:pl-2 transition-all duration-300 flex items-center gap-2 border-b border-border/50"
-              >
-                <Heart size={18} strokeWidth={1.5} />
-                Wishlist ({wishlist.length})
-              </Link>
-              <Link 
-                to="/cart" 
-                className="py-3 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:pl-2 transition-all duration-300 flex items-center gap-2 border-b border-border/50"
-              >
-                <ShoppingBag size={18} strokeWidth={1.5} />
-                Cart ({totalItems})
-              </Link>
-              {user ? (
-                <button 
-                  onClick={() => signOut()}
-                  className="py-3 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:pl-2 transition-all duration-300 flex items-center gap-2 w-full text-left"
+
+                <Link
+                  to="/cart"
+                  className="flex items-center justify-between py-3 px-4 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:bg-muted/50 rounded-lg transition-all duration-300"
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                  <LogOut size={18} strokeWidth={1.5} />
-                  Sign Out
-                </button>
-              ) : (
-                <Link 
-                  to="/auth" 
-                  className="py-3 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:pl-2 transition-all duration-300 flex items-center gap-2"
-                >
-                  <User size={18} strokeWidth={1.5} />
-                  Sign In
+                  <div className="flex items-center gap-3">
+                    <ShoppingBag size={20} strokeWidth={1.5} />
+                    <span>Cart</span>
+                  </div>
+                  <span className="bg-gold text-primary text-sm px-2 py-1 rounded-full font-semibold">
+                    {totalItems}
+                  </span>
                 </Link>
-              )}
+
+                {user ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-3 py-3 px-4 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:bg-muted/50 rounded-lg transition-all duration-300"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <User size={20} strokeWidth={1.5} />
+                      <span>Profile</span>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        signOut();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 py-3 px-4 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:bg-muted/50 rounded-lg transition-all duration-300 w-full text-left"
+                    >
+                      <LogOut size={20} strokeWidth={1.5} />
+                      <span>Sign Out</span>
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/auth"
+                    className="flex items-center gap-3 py-3 px-4 text-base font-medium tracking-widest uppercase text-foreground hover:text-gold hover:bg-muted/50 rounded-lg transition-all duration-300"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User size={20} strokeWidth={1.5} />
+                    <span>Sign In</span>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -301,7 +391,7 @@ const Navbar = () => {
       </div>
 
       {/* Spacer for fixed navbar */}
-      <div className="h-[88px] lg:h-[108px]" />
+      <div className="h-[88px] lg:h-[1   08px]" />
     </>
   );
 };
