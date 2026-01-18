@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, User, Mail, Calendar, Edit } from 'lucide-react';
+import { Home, User, Mail, Calendar, Edit, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../integrations/supabase/client';
 import { Tables } from '../integrations/supabase/types';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<Tables<'profiles'> | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -125,13 +125,22 @@ const Profile = () => {
             </div>
 
             <div className="mt-8 pt-6 border-t border-border">
-              <Link
-                to="/profile/edit"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-colors duration-200"
-              >
-                <Edit size={18} />
-                <span>Edit Profile</span>
-              </Link>
+              <div className="flex gap-4">
+                <Link
+                  to="/profile/edit"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-secondary/80 transition-colors duration-200"
+                >
+                  <Edit size={18} />
+                  <span>Edit Profile</span>
+                </Link>
+                <button
+                  onClick={() => signOut()}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors duration-200"
+                >
+                  <LogOut size={18} />
+                  <span>Sign Out</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

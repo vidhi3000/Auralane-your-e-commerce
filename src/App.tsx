@@ -22,6 +22,7 @@ import SizeGuide from "./pages/SizeGuide";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/Callback";
 import Profile from "./pages/Profile";
+import ProfileEdit from "./pages/ProfileEdit";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,9 +49,10 @@ const App = () => {
                    <Route path="/contact-us" element={<ContactUs />} />
                    <Route path="/shipping-returns" element={<ShippingReturns />} />
                    <Route path="/size-guide" element={<SizeGuide />} />
-                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/auth" element={<Auth />} />
                   <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile/edit" element={<ProfileEdit />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
 

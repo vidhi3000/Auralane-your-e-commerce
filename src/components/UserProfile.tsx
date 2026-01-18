@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { User, Settings, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const UserProfile = () => {
   const [open, setOpen] = useState(false);
+  const { signOut } = useAuth();
 
   return (
     <div className="relative">
@@ -33,6 +35,10 @@ const UserProfile = () => {
           </Link>
 
           <button
+            onClick={() => {
+              signOut();
+              setOpen(false);
+            }}
             className="flex items-center gap-2 w-full px-4 py-2 hover:bg-gray-100 text-left"
           >
             <LogOut size={16} />
