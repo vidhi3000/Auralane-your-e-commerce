@@ -13,6 +13,7 @@ const allSizes = [...new Set(products.flatMap(p => p.sizes))];
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [openSelect, setOpenSelect] = useState<string | null>(null);
 
   const categoryFilter = searchParams.get('category') || 'all';
   const colorFilter = searchParams.get('color') || 'all';
@@ -89,7 +90,7 @@ const Products = () => {
         <div className="flex gap-8">
           {/* Sidebar Filters */}
           <div className="hidden lg:block w-64 flex-shrink-0">
-            <div className="sticky top-24 bg-card rounded-lg p-6 shadow-soft">
+            <div className="sticky top-24 bg-card rounded-lg p-6 shadow-soft overflow-visible">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display text-lg font-semibold">Filters</h3>
                 {hasActiveFilters && (
@@ -106,7 +107,14 @@ const Products = () => {
               {/* Category Filter */}
               <div className="space-y-3 mb-8">
                 <p className="text-sm font-medium text-muted-foreground">Category</p>
-                <Select value={categoryFilter} onValueChange={handleCategoryChange}>
+                <Select 
+                  value={categoryFilter} 
+                  onValueChange={handleCategoryChange}
+                  open={openSelect === 'category'}
+                  onOpenChange={(open) => {
+                    setOpenSelect(open ? 'category' : null);
+                  }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -121,7 +129,14 @@ const Products = () => {
               {/* Color Filter */}
               <div className="space-y-3 mb-8">
                 <p className="text-sm font-medium text-muted-foreground">Color</p>
-                <Select value={colorFilter} onValueChange={handleColorChange}>
+                <Select 
+                  value={colorFilter} 
+                  onValueChange={handleColorChange}
+                  open={openSelect === 'color'}
+                  onOpenChange={(open) => {
+                    setOpenSelect(open ? 'color' : null);
+                  }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select color" />
                   </SelectTrigger>
@@ -139,7 +154,14 @@ const Products = () => {
               {/* Size Filter */}
               <div className="space-y-3">
                 <p className="text-sm font-medium text-muted-foreground">Size</p>
-                <Select value={sizeFilter} onValueChange={handleSizeChange}>
+                <Select 
+                  value={sizeFilter} 
+                  onValueChange={handleSizeChange}
+                  open={openSelect === 'size'}
+                  onOpenChange={(open) => {
+                    setOpenSelect(open ? 'size' : null);
+                  }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select size" />
                   </SelectTrigger>
@@ -159,7 +181,7 @@ const Products = () => {
           {/* Main Content */}
           <div className="flex-1">
             {/* Mobile Filter Button */}
-            <div className="lg:hidden flex items-center justify-between mb-6">
+            <div className="lg:hiddenS flex items-center justify-between mb-6">
               <button
                 onClick={() => setIsFilterOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium"
@@ -191,13 +213,19 @@ const Products = () => {
           <div className="fixed inset-0 z-50 lg:hidden">
             <div 
               className="absolute inset-0 bg-charcoal/50"
-              onClick={() => setIsFilterOpen(false)}
+              onClick={() => {
+                setIsFilterOpen(false);
+                setOpenSelect(null);
+              }}
             />
             <div className="absolute right-0 top-0 h-full w-80 bg-background p-6 shadow-elevated animate-slide-in overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display text-xl font-semibold">Filters</h3>
                 <button
-                  onClick={() => setIsFilterOpen(false)}
+                  onClick={() => {
+                    setIsFilterOpen(false);
+                    setOpenSelect(null);
+                  }}
                   className="p-2 text-muted-foreground hover:text-foreground"
                 >
                   <X size={20} />
@@ -207,7 +235,14 @@ const Products = () => {
               {/* Category Section */}
               <div className="space-y-3 mb-8">
                 <p className="text-sm font-medium text-muted-foreground">Category</p>
-                <Select value={categoryFilter} onValueChange={handleCategoryChange}>
+                <Select 
+                  value={categoryFilter} 
+                  onValueChange={handleCategoryChange}
+                  open={openSelect === 'mobile-category'}
+                  onOpenChange={(open) => {
+                    setOpenSelect(open ? 'mobile-category' : null);
+                  }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -222,7 +257,14 @@ const Products = () => {
               {/* Color Section */}
               <div className="space-y-3 mb-8">
                 <p className="text-sm font-medium text-muted-foreground">Color</p>
-                <Select value={colorFilter} onValueChange={handleColorChange}>
+                <Select 
+                  value={colorFilter} 
+                  onValueChange={handleColorChange}
+                  open={openSelect === 'mobile-color'}
+                  onOpenChange={(open) => {
+                    setOpenSelect(open ? 'mobile-color' : null);
+                  }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select color" />
                   </SelectTrigger>
@@ -240,7 +282,14 @@ const Products = () => {
               {/* Size Section */}
               <div className="space-y-3">
                 <p className="text-sm font-medium text-muted-foreground">Size</p>
-                <Select value={sizeFilter} onValueChange={handleSizeChange}>
+                <Select 
+                  value={sizeFilter} 
+                  onValueChange={handleSizeChange}
+                  open={openSelect === 'mobile-size'}
+                  onOpenChange={(open) => {
+                    setOpenSelect(open ? 'mobile-size' : null);
+                  }}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select size" />
                   </SelectTrigger>
