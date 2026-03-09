@@ -87,10 +87,10 @@ const Products = () => {
         </div>
 
         {/* Desktop Layout with Sidebar */}
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
           <div className="hidden lg:block w-64 flex-shrink-0">
-            <div className="sticky top-24 bg-card rounded-lg p-6 shadow-soft overflow-visible">
+            <div className="sticky top-24 z-10 bg-card rounded-lg p-6 shadow-soft overflow-visible">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display text-lg font-semibold">Filters</h3>
                 {hasActiveFilters && (
@@ -181,7 +181,7 @@ const Products = () => {
           {/* Main Content */}
           <div className="flex-1">
             {/* Mobile Filter Button */}
-            <div className="lg:hiddenS flex items-center justify-between mb-6">
+            <div className="lg:hidden flex items-center justify-between mb-6">
               <button
                 onClick={() => setIsFilterOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md text-sm font-medium"
@@ -212,7 +212,7 @@ const Products = () => {
         {isFilterOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div 
-              className="absolute inset-0 bg-charcoal/50"
+              className="absolute inset-0 bg-charcoal/50 backdrop-blur-sm"
               onClick={() => {
                 setIsFilterOpen(false);
                 setOpenSelect(null);
@@ -280,7 +280,7 @@ const Products = () => {
               </div>
 
               {/* Size Section */}
-              <div className="space-y-3">
+              <div className="space-y-5">
                 <p className="text-sm font-medium text-muted-foreground">Size</p>
                 <Select 
                   value={sizeFilter} 
@@ -315,8 +315,6 @@ const Products = () => {
           </div>
         )}
 
-        {/* Product Grid */}
-        <ProductGrid products={filteredProducts} />
       </div>
     </Layout>
   );
