@@ -90,7 +90,7 @@ const Products = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
           <div className="hidden lg:block w-64 flex-shrink-0">
-            <div className="sticky top-24 z-10 bg-card rounded-lg p-6 shadow-soft overflow-visible">
+            <div className="sticky top-24 bg-card rounded-lg p-6 shadow-soft overflow-visible">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display text-lg font-semibold">Filters</h3>
                 {hasActiveFilters && (
@@ -104,8 +104,9 @@ const Products = () => {
                 )}
               </div>
 
-              {/* Category Filter */}
-              <div className="space-y-3 mb-8">
+              {/* Filter Sections Container - Flex Column for Proper Stacking */}
+              <div className="flex flex-col gap-6">
+              <div className="space-y-3 mb-6 overflow-visible">
                 <p className="text-sm font-medium text-muted-foreground">Category</p>
                 <Select 
                   value={categoryFilter} 
@@ -118,7 +119,7 @@ const Products = () => {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent sideOffset={4} className="max-h-[300px] overflow-auto">
                     <SelectItem value="all">All</SelectItem>
                     <SelectItem value="women">Women</SelectItem>
                     <SelectItem value="men">Men</SelectItem>
@@ -127,7 +128,7 @@ const Products = () => {
               </div>
 
               {/* Color Filter */}
-              <div className="space-y-3 mb-8">
+              <div className="space-y-3 mb-6 overflow-visible">
                 <p className="text-sm font-medium text-muted-foreground">Color</p>
                 <Select 
                   value={colorFilter} 
@@ -140,7 +141,7 @@ const Products = () => {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select color" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent sideOffset={4} className="max-h-[300px] overflow-auto">
                     <SelectItem value="all">All Colors</SelectItem>
                     {allColors.map((color) => (
                       <SelectItem key={color} value={color.toLowerCase()}>
@@ -152,7 +153,7 @@ const Products = () => {
               </div>
 
               {/* Size Filter */}
-              <div className="space-y-3">
+              <div className="space-y-3 overflow-visible">
                 <p className="text-sm font-medium text-muted-foreground">Size</p>
                 <Select 
                   value={sizeFilter} 
@@ -165,7 +166,7 @@ const Products = () => {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select size" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent sideOffset={4} className="max-h-[300px] overflow-auto">
                     <SelectItem value="all">All Sizes</SelectItem>
                     {allSizes.map((size) => (
                       <SelectItem key={size} value={size.toLowerCase()}>
@@ -174,6 +175,7 @@ const Products = () => {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
               </div>
             </div>
           </div>
@@ -233,7 +235,7 @@ const Products = () => {
               </div>
 
               {/* Category Section */}
-              <div className="space-y-3 mb-8">
+              <div className="space-y-3 mb-6 overflow-visible">
                 <p className="text-sm font-medium text-muted-foreground">Category</p>
                 <Select 
                   value={categoryFilter} 
@@ -246,7 +248,7 @@ const Products = () => {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent sideOffset={8} className="max-h-[300px] overflow-auto">
                     <SelectItem value="all">All</SelectItem>
                     <SelectItem value="women">Women</SelectItem>
                     <SelectItem value="men">Men</SelectItem>
@@ -255,7 +257,7 @@ const Products = () => {
               </div>
 
               {/* Color Section */}
-              <div className="space-y-3 mb-8">
+              <div className="space-y-3 mb-6 overflow-visible">
                 <p className="text-sm font-medium text-muted-foreground">Color</p>
                 <Select 
                   value={colorFilter} 
@@ -268,7 +270,7 @@ const Products = () => {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select color" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent sideOffset={8} className="max-h-[300px] overflow-auto">
                     <SelectItem value="all">All Colors</SelectItem>
                     {allColors.map((color) => (
                       <SelectItem key={color} value={color.toLowerCase()}>
@@ -280,7 +282,7 @@ const Products = () => {
               </div>
 
               {/* Size Section */}
-              <div className="space-y-5">
+              <div className="space-y-3 overflow-visible">
                 <p className="text-sm font-medium text-muted-foreground">Size</p>
                 <Select 
                   value={sizeFilter} 
@@ -293,7 +295,7 @@ const Products = () => {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select size" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent sideOffset={8} className="max-h-[300px] overflow-auto">
                     <SelectItem value="all">All Sizes</SelectItem>
                     {allSizes.map((size) => (
                       <SelectItem key={size} value={size.toLowerCase()}>
