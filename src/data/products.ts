@@ -42,7 +42,7 @@ export const products: Product[] = [
     image: cottonShirt,
     description: "Crisp white cotton shirt with mother-of-pearl buttons. A wardrobe essential for the modern gentleman.",
     sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["White", "Light Blue", "Pink"]
+    colors: ["Cream", "Light Blue", "Pink"]
   },
   {
     id: 4,
