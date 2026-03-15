@@ -166,7 +166,7 @@ const Products = () => {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select size" />
                   </SelectTrigger>
-                  <SelectContent sideOffset={4} className="max-h-[300px] overflow-auto">
+                  <SelectContent  position="popper" side="bottom" sideOffset={6} className="max-h-[300px] overflow-auto">
                     <SelectItem value="all">All Sizes</SelectItem>
                     {allSizes.map((size) => (
                       <SelectItem key={size} value={size.toLowerCase()}>
