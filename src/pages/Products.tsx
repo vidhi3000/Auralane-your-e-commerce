@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Filter, X } from 'lucide-react';
 import Layout from '@/components/Layout';
@@ -8,16 +8,25 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
 // Extract all unique colors and sizes from products
-const allColors = [...new Set(products.flatMap(p => p.colors))].sort();
-const allSizes = [...new Set(products.flatMap(p => p.sizes))];
+const allColors = [...new Set(products.flatMap((p) => p.colors))].sort() as string[];
+const allSizes = [...new Set(products.flatMap((p) => p.sizes))].sort() as string[];
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const categoryFilters = new Set(searchParams.getAll('category[]').map(c => c.toLowerCase()));
-  const colorFilters = new Set(searchParams.getAll('color[]').map(c => c.toLowerCase()));
-  const sizeFilters = new Set(searchParams.getAll('size[]').map(s => s.toLowerCase()));
+  const categoryFilters = useMemo(
+    () => new Set(searchParams.getAll('category[]').map((c) => c.toLowerCase())),
+    [searchParams.toString()],
+  );
+  const colorFilters = useMemo(
+    () => new Set(searchParams.getAll('color[]').map((c) => c.toLowerCase())),
+    [searchParams.toString()],
+  );
+  const sizeFilters = useMemo(
+    () => new Set(searchParams.getAll('size[]').map((s) => s.toLowerCase())),
+    [searchParams.toString()],
+  );
   const searchQuery = searchParams.get('search') || '';
 
   const filteredProducts = useMemo(() => {
@@ -29,7 +38,7 @@ const Products = () => {
         product.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesColor && matchesSize && matchesSearch;
     });
-  }, [Array.from(categoryFilters), Array.from(colorFilters), Array.from(sizeFilters), searchQuery]);
+  }, [categoryFilters, colorFilters, sizeFilters, searchQuery]);
 
   const toggleFilter = (type: 'category' | 'color' | 'size', value: string, checked: boolean) => {
     const params = new URLSearchParams(searchParams);
@@ -55,7 +64,7 @@ const Products = () => {
   const hasActiveFilters = categoryFilters.size > 0 || colorFilters.size > 0 || sizeFilters.size > 0 || searchQuery !== '';
 
   // Filter "all" logic - if "all" checked, clear others
-  React.useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(searchParams);
     if (categoryFilters.has('all') && (categoryFilters.has('women') || categoryFilters.has('men'))) {
       params.delete('category[]');
@@ -63,7 +72,7 @@ const Products = () => {
       setSearchParams(params);
     }
     // Similar for color/size if needed
-  }, [categoryFilters]);
+  }, [categoryFilters, searchParams, setSearchParams]);
 
   return (
     <Layout>
