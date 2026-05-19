@@ -21,6 +21,7 @@ const Auth = () => {
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -58,7 +59,8 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
-    
+    setSuccessMessage(null);
+
     if (!validateForm()) return;
 
     setIsSubmitting(true);
@@ -81,13 +83,13 @@ const Auth = () => {
           } else {
             setAuthError(error.message);
           }
-        return;
+          return;
         }
-       // ✅ SIGNUP SUCCESS
-    setAuthError(null);
-    // show message only
-    // toast OR UI message:
-    // "Check your email to confirm your account."
+
+        setAuthError(null);
+        setSuccessMessage(
+          'Signup successful! Check your inbox for a confirmation email and click the link to verify your account. If it does not arrive, please check your spam folder.'
+        );
       }
     } finally {
       setIsSubmitting(false);
@@ -184,6 +186,12 @@ const Auth = () => {
             {authError && (
               <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
                 <p className="text-sm text-destructive">{authError}</p>
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="p-3 bg-primary/10 border border-primary/20 rounded-md">
+                <p className="text-sm text-primary">{successMessage}</p>
               </div>
             )}
 
