@@ -7,7 +7,7 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const confirmEmail = async () => {
-      await supabase.auth.getSessionFromUrl();
+      await supabase.auth.initialize();
       navigate('/');
     };
 
