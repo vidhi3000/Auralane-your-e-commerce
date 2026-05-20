@@ -13,7 +13,7 @@ const AuthCallback = () => {
       if (error) {
         console.error('Auth callback error:', error);
 
-        setMessage('Authentication failed. Redirecting...');
+        setMessage(' Redirecting...');
       } else if (data?.session) {
         console.debug('Auth callback session:', data.session);
         setMessage('Authenticated successfully. Redirecting...');
