@@ -5,7 +5,7 @@ import Layout from '@/components/Layout';
 import ProductGrid from '@/components/ProductGrid';
 import { products } from '@/data/products';
 import { useWishlist } from '@/context/WishlistContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context';
 import { Button } from '@/components/ui/button';
 
 const Wishlist = () => {

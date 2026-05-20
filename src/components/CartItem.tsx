@@ -3,7 +3,7 @@ import { Minus, Plus, X, Heart } from 'lucide-react';
 import { CartItem as CartItemType } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context';
 
 interface CartItemProps {
   item: CartItemType;

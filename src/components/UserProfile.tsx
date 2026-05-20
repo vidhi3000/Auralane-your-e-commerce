@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { User, Settings, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from '@/context';
 
 const UserProfile = () => {
   const [open, setOpen] = useState(false);

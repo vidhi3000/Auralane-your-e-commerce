@@ -3,7 +3,7 @@ import { ShoppingBag, Heart } from 'lucide-react';
 import { Product } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useWishlist } from '@/context/WishlistContext';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context';
 
 interface ProductCardProps {
   product: Product;

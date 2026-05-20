@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, User, Save, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/useAuth';
 import { supabase } from '../integrations/supabase/client';
 import { Tables } from '../integrations/supabase/types';
 import { Button } from '../components/ui/button';
