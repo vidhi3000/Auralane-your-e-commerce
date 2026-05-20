@@ -43,10 +43,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     });
 
+    console.debug('Supabase signUp response:', { data, error });
+
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message || 'Signup failed. Check the console for details.');
       return { error };
-    }
+
 
     toast.success('Welcome! Please check your email to confirm your account.');
     return { error: null };
@@ -58,8 +60,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password,
     });
 
+    console.debug('Supabase signIn response:', { data, error });
+
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message || 'Sign in failed. Check the console for details.');
       return { error };
     }
 
