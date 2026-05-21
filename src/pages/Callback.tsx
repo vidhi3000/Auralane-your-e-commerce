@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -6,11 +6,14 @@ const AuthCallback = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('Finalizing authentication...');
 
+  const redirectAfterSuccess = useMemo(() => {
+    // Your app does not define /dashboard in App.tsx.
+    // Keep redirect within existing routes.
+    return '/';
+  }, []);
+
   useEffect(() => {
     const handleCallback = async () => {
-      // IMPORTANT: exchangeCodeForSession requires the PKCE code_verifier to be present.
-      // If the callback runs without the verifier (e.g. storage cleared / different tab), Supabase throws:
-      // "invalid request: both auth code and code verifier should be non-empty".
       const url = new URL(window.location.href);
       const authCode = url.searchParams.get('code');
 
@@ -20,63 +23,65 @@ const AuthCallback = () => {
         return;
       }
 
-      const { data, error } = await supabase.auth.exchangeCodeForSession(url.toString());
-
-      if (error) {
-        console.error('Auth callback error:', error);
-        setMessage('Authentication failed. Redirecting...');
-        navigate('/');
-        return;
-      }
-
-      const session = data?.session ?? null;
-      if (!session) {
-        setMessage('No session found. Redirecting...');
-        navigate('/');
-        return;
-      }
-
-      // After confirmation, Supabase gives us an authenticated session.
-      // Ensure the user has a profile row immediately (idempotent), then redirect.
       try {
-        const userId = session.user?.id;
-        if (userId) {
-          await supabase
-            .from('profiles')
-            .upsert(
-              {
-                user_id: userId,
-                display_name:
-                  (session.user.user_metadata as { display_name?: string })?.display_name ?? null,
-              },
-              { onConflict: 'user_id' }
-            );
+        // exchangeCodeForSession needs the PKCE verifier in storage.
+        // When storage is missing (different tab/device), this will fail.
+        const { data, error } = await supabase.auth.exchangeCodeForSession(url.toString());
+
+        if (error) {
+          console.error('Auth callback exchangeCodeForSession error:', error);
+          setMessage('Authentication failed (missing verifier?). Redirecting...');
+          navigate('/auth');
+          return;
         }
+
+        const exchangedSession = data?.session ?? null;
+
+        // Ensure session exists (sometimes exchange returns session but app session cache is behind).
+        const { data: sessionData } = await supabase.auth.getSession();
+        const session = sessionData.session ?? exchangedSession;
+
+        if (!session) {
+          setMessage('No authenticated session found. Redirecting...');
+          navigate('/auth');
+          return;
+        }
+
+        // Ensure the user has a profile row immediately (idempotent).
+        try {
+          const userId = session.user?.id;
+          if (userId) {
+            await supabase
+              .from('profiles')
+              .upsert(
+                {
+                  user_id: userId,
+                  display_name:
+                    (session.user.user_metadata as { display_name?: string })?.display_name ?? null,
+                },
+                { onConflict: 'user_id' }
+              );
+          }
+        } catch (e) {
+          console.warn('Failed to ensure profile on callback:', e);
+        }
+
+        setMessage('Authenticated successfully. Redirecting...');
+        navigate(redirectAfterSuccess);
       } catch (e) {
-        console.warn('Failed to ensure profile on callback:', e);
-      }
-
-      // Wait for the session to be available to the app (prevents race with protected routes).
-      const { data: sessionData } = await supabase.auth.getSession();
-
-      if (!sessionData.session) {
-        // For unconfirmed emails Supabase should not return a session.
-        // Redirect to the login page (or stay safe) instead of throwing “email not confirmed”.
-        setMessage('Email not confirmed yet. Redirecting...');
+        console.error('Auth callback fatal error:', e);
+        setMessage('Authentication failed. Redirecting...');
         navigate('/auth');
-        return;
       }
-
-      console.debug('Auth callback session:', sessionData.session ?? session);
-      setMessage('Authenticated successfully. Redirecting...');
-      navigate('/dashboard');
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [navigate, redirectAfterSuccess]);
 
   return <p>{message}</p>;
 };
 
 export default AuthCallback;
+
+
 
