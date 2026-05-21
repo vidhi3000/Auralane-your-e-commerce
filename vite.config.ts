@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(path.dirname(fileURLToPath(import.meta.url)), "./src"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 }));
