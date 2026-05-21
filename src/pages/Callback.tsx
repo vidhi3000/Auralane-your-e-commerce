@@ -11,14 +11,12 @@ const AuthCallback = () => {
       // IMPORTANT: exchangeCodeForSession requires the PKCE code_verifier to be present.
       // If the callback runs without the verifier (e.g. storage cleared / different tab), Supabase throws:
       // "invalid request: both auth code and code verifier should be non-empty".
-      // Using the current URL is required; we also guard against missing params.
       const url = new URL(window.location.href);
       const authCode = url.searchParams.get('code');
 
-      // If this isn't an OAuth callback, just redirect.
       if (!authCode) {
         setMessage('Redirecting...');
-        window.setTimeout(() => navigate('/'), 800);
+        navigate('/');
         return;
       }
 
@@ -26,49 +24,48 @@ const AuthCallback = () => {
 
       if (error) {
         console.error('Auth callback error:', error);
-        setMessage('Redirecting...');
-      } else if (data?.session) {
-        // After confirmation, Supabase gives us an authenticated session.
-        // Ensure the user has a profile row immediately, then redirect.
-        try {
-          const userId = data.session.user?.id;
-          if (userId) {
-            // Create profile if missing. Use upsert to be idempotent.
-            await supabase
-              .from('profiles')
-              .upsert(
-                {
-                  user_id: userId,
-                  display_name:
-                    (data.session.user.user_metadata as { display_name?: string })?.display_name ?? null,
-                },
-                { onConflict: 'user_id' }
-              );
-
-          }
-        } catch (e) {
-          console.warn('Failed to ensure profile on callback:', e);
-        }
-
-        console.debug('Auth callback session:', data.session);
-        setMessage('Authenticated successfully. Redirecting...');
-      } else {
-        setMessage('Redirecting...');
+        setMessage('Authentication failed. Redirecting...');
+        navigate('/');
+        return;
       }
 
+      const session = data?.session ?? null;
+      if (!session) {
+        setMessage('No session found. Redirecting...');
+        navigate('/');
+        return;
+      }
 
+      // After confirmation, Supabase gives us an authenticated session.
+      // Ensure the user has a profile row immediately (idempotent), then redirect.
+      try {
+        const userId = session.user?.id;
+        if (userId) {
+          await supabase
+            .from('profiles')
+            .upsert(
+              {
+                user_id: userId,
+                display_name:
+                  (session.user.user_metadata as { display_name?: string })?.display_name ?? null,
+              },
+              { onConflict: 'user_id' }
+            );
+        }
+      } catch (e) {
+        console.warn('Failed to ensure profile on callback:', e);
+      }
 
+      // Wait for the session to be available to the app (prevents race with protected routes).
+      const { data: sessionData } = await supabase.auth.getSession();
 
+      if (!sessionData.session) {
+        console.warn('Session not available immediately after callback exchange.');
+      }
 
-
-
-
-
-
-      // Avoid running navigation before auth state is settled.
-      window.setTimeout(() => navigate('/'), 800);
-
-
+      console.debug('Auth callback session:', sessionData.session ?? session);
+      setMessage('Authenticated successfully. Redirecting...');
+      navigate('/dashboard');
     };
 
     handleCallback();
@@ -78,3 +75,4 @@ const AuthCallback = () => {
 };
 
 export default AuthCallback;
+
