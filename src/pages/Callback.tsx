@@ -8,12 +8,25 @@ const AuthCallback = () => {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+      // IMPORTANT: exchangeCodeForSession requires the PKCE code_verifier to be present.
+      // If the callback runs without the verifier (e.g. storage cleared / different tab), Supabase throws:
+      // "invalid request: both auth code and code verifier should be non-empty".
+      // Using the current URL is required; we also guard against missing params.
+      const url = new URL(window.location.href);
+      const authCode = url.searchParams.get('code');
+
+      // If this isn't an OAuth callback, just redirect.
+      if (!authCode) {
+        setMessage('Redirecting...');
+        window.setTimeout(() => navigate('/'), 800);
+        return;
+      }
+
+      const { data, error } = await supabase.auth.exchangeCodeForSession(url.toString());
 
       if (error) {
         console.error('Auth callback error:', error);
-
-        setMessage(' Redirecting...');
+        setMessage('Redirecting...');
       } else if (data?.session) {
         console.debug('Auth callback session:', data.session);
         setMessage('Authenticated successfully. Redirecting...');
@@ -21,6 +34,7 @@ const AuthCallback = () => {
         setMessage('Redirecting...');
       }
 
+      // Avoid running navigation before auth state is settled.
       window.setTimeout(() => navigate('/'), 800);
     };
 
