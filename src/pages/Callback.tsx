@@ -28,14 +28,47 @@ const AuthCallback = () => {
         console.error('Auth callback error:', error);
         setMessage('Redirecting...');
       } else if (data?.session) {
+        // After confirmation, Supabase gives us an authenticated session.
+        // Ensure the user has a profile row immediately, then redirect.
+        try {
+          const userId = data.session.user?.id;
+          if (userId) {
+            // Create profile if missing. Use upsert to be idempotent.
+            await supabase
+              .from('profiles')
+              .upsert(
+                {
+                  user_id: userId,
+                  display_name:
+                    (data.session.user.user_metadata as { display_name?: string })?.display_name ?? null,
+                },
+                { onConflict: 'user_id' }
+              );
+
+          }
+        } catch (e) {
+          console.warn('Failed to ensure profile on callback:', e);
+        }
+
         console.debug('Auth callback session:', data.session);
         setMessage('Authenticated successfully. Redirecting...');
       } else {
         setMessage('Redirecting...');
       }
 
+
+
+
+
+
+
+
+
+
       // Avoid running navigation before auth state is settled.
       window.setTimeout(() => navigate('/'), 800);
+
+
     };
 
     handleCallback();

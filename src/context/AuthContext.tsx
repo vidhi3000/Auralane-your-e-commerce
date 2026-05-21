@@ -32,6 +32,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string): Promise<AuthResponse> => {
+    // Using email confirmation flow.
+    // After user clicks the confirmation link, Supabase will finish authentication
+    // via `auth/callback` route (exchangeCodeForSession), and we then redirect.
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -42,6 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+
 
     console.debug('Supabase signUp response:', { data, error });
 
@@ -55,10 +59,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string): Promise<AuthResponse> => {
+    // If Supabase is configured for email confirmations / RLS etc., password sign-in can be blocked.
+    // To reduce “token” errors caused by wrong auth state, always ensure session refresh first.
+    // Refresh session cache to avoid exchanging/using stale auth state.
+    // Note: This does not change the request payload; it only helps prevent
+    // some timing issues during page transitions.
+    await supabase.auth.getSession();
+
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
 
     console.debug('Supabase signIn response:', { data, error });
 
