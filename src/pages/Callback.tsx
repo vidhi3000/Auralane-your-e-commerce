@@ -60,7 +60,11 @@ const AuthCallback = () => {
       const { data: sessionData } = await supabase.auth.getSession();
 
       if (!sessionData.session) {
-        console.warn('Session not available immediately after callback exchange.');
+        // For unconfirmed emails Supabase should not return a session.
+        // Redirect to the login page (or stay safe) instead of throwing “email not confirmed”.
+        setMessage('Email not confirmed yet. Redirecting...');
+        navigate('/auth');
+        return;
       }
 
       console.debug('Auth callback session:', sessionData.session ?? session);
