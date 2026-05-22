@@ -67,9 +67,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.getSession();
 
   const { data, error } = await supabase.auth.signInWithPassword({
-      email: "user@example.com",
-      password: "password123",
-    });
+      email: email,
+      password: "password",
+
+    }); 
 
     if (error) {
     toast.error(error.message || 'Sign in failed');

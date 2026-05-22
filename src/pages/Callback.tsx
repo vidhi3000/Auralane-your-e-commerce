@@ -2,86 +2,123 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
+type CallbackStatus = 'loading' | 'success' | 'error';
+
 const AuthCallback = () => {
   const navigate = useNavigate();
   const [message, setMessage] = useState('Finalizing authentication...');
+  const [status, setStatus] = useState<CallbackStatus>('loading');
 
-  const redirectAfterSuccess = useMemo(() => {
-    // Your app does not define /dashboard in App.tsx.
-    // Keep redirect within existing routes.
-    return '/';
-  }, []);
+  const redirectAfterSuccess = useMemo(() => '/', []);
 
   useEffect(() => {
     const handleCallback = async () => {
       const url = new URL(window.location.href);
       const authCode = url.searchParams.get('code');
+      const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
 
+      // ── Magic link flow (hash-based tokens) ──────────────────────────────
+      if (accessToken && refreshToken) {
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (error || !data.session) {
+          setStatus('error');
+          setMessage('Magic link authentication failed. Redirecting...');
+          setTimeout(() => navigate('/auth'), 2000);
+          return;
+        }
+
+        await ensureProfile(data.session);
+        setStatus('success');
+        setMessage('Authenticated successfully! Redirecting...');
+        setTimeout(() => navigate(redirectAfterSuccess), 500);
+        return;
+      }
+
+      // ── PKCE / email confirmation flow (code-based) ───────────────────────
       if (!authCode) {
-        setMessage('Redirecting...');
+        // No recognizable auth params — send home silently
         navigate('/');
         return;
       }
 
       try {
-        // exchangeCodeForSession needs the PKCE verifier in storage.
-        // When storage is missing (different tab/device), this will fail.
-        const { data, error } = await supabase.auth.exchangeCodeForSession(url.toString());
+        const { data, error } = await supabase.auth.exchangeCodeForSession(
+          url.toString()  // Supabase extracts the code internally
+        );
 
         if (error) {
-          console.error('Auth callback exchangeCodeForSession error:', error);
-          setMessage('Authentication failed (missing verifier?). Redirecting...');
-          navigate('/auth');
+          console.error('exchangeCodeForSession error:', error);
+          setStatus('error');
+          setMessage('Authentication failed. The link may have expired. Redirecting...');
+          setTimeout(() => navigate('/auth'), 2500);
           return;
         }
 
-        const exchangedSession = data?.session ?? null;
-
-        // Ensure session exists (sometimes exchange returns session but app session cache is behind).
         const { data: sessionData } = await supabase.auth.getSession();
-        const session = sessionData.session ?? exchangedSession;
+        const session = sessionData.session ?? data?.session ?? null;
 
         if (!session) {
-          setMessage('No authenticated session found. Redirecting...');
-          navigate('/auth');
+          setStatus('error');
+          setMessage('No session found. Redirecting...');
+          setTimeout(() => navigate('/auth'), 2000);
           return;
         }
 
-        // Ensure the user has a profile row immediately (idempotent).
-        try {
-          const userId = session.user?.id;
-          if (userId) {
-            await supabase
-              .from('profiles')
-              .upsert(
-                {
-                  user_id: userId,
-                  display_name:
-                    (session.user.user_metadata as { display_name?: string })?.display_name ?? null,
-                },
-                { onConflict: 'user_id' }
-              );
-          }
-        } catch (e) {
-          console.warn('Failed to ensure profile on callback:', e);
-        }
-
-        setMessage('Authenticated successfully. Redirecting...');
-        navigate(redirectAfterSuccess);
+        await ensureProfile(session);
+        setStatus('success');
+        setMessage('Authenticated successfully! Redirecting...');
+        setTimeout(() => navigate(redirectAfterSuccess), 500);
       } catch (e) {
         console.error('Auth callback fatal error:', e);
-        setMessage('Authentication failed. Redirecting...');
-        navigate('/auth');
+        setStatus('error');
+        setMessage('An unexpected error occurred. Redirecting...');
+        setTimeout(() => navigate('/auth'), 2000);
+      }
+    };
+
+    // ── Helper: idempotent profile creation ──────────────────────────────────
+    const ensureProfile = async (session: NonNullable<Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session']>) => {
+      const userId = session.user?.id;
+      if (!userId) return;
+
+      try {
+        await supabase.from('profiles').upsert(
+          {
+            user_id: userId,
+            display_name:
+              (session.user.user_metadata as { display_name?: string })?.display_name ?? null,
+            updated_at: new Date().toISOString(),  // ensures upsert always writes
+          },
+          { onConflict: 'user_id' }
+        );
+      } catch (e) {
+        console.warn('Failed to ensure profile on callback:', e);
       }
     };
 
     handleCallback();
   }, [navigate, redirectAfterSuccess]);
 
-  return <p>{message}</p>;
+  // ── Minimal status-aware UI ───────────────────────────────────────────────
+  const statusStyles: Record<CallbackStatus, string> = {
+    loading: 'text-gray-500',
+    success: 'text-green-600',
+    error: 'text-red-500',
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <p className={`text-sm font-medium ${statusStyles[status]}`}>
+        {message}
+      </p>
+    </div>
+  );
 };
 
 export default AuthCallback;
-
-
-
