@@ -1,94 +1,149 @@
-import { useState, useEffect, ReactNode, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { AuthContext } from './AuthContextSetup';
 
-type AuthResponse = {
-  error: Error | null;
-};
+type CallbackStatus = 'loading' | 'success' | 'error';
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+const AuthCallback = () => {
+  const navigate = useNavigate();
+  const [message, setMessage] = useState('Finalizing authentication...');
+  const [status, setStatus] = useState<CallbackStatus>('loading');
+  const redirectAfterSuccess = useMemo(() => '/', []);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+    const ensureProfile = async (session: NonNullable<Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session']>) => {
+      const userId = session.user?.id;
+      if (!userId) return;
+      try {
+        await supabase.from('profiles').upsert(
+          {
+            user_id: userId,
+            display_name:
+              (session.user.user_metadata as { display_name?: string })?.display_name ?? null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+      } catch (e) {
+        console.warn('Failed to ensure profile:', e);
       }
-    );
+    };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const handleCallback = async () => {
+      const url = new URL(window.location.href);
+      const authCode = url.searchParams.get('code');
+      const tokenHash = url.searchParams.get('token_hash');
+      const type = url.searchParams.get('type');
+      const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
 
-    return () => subscription.unsubscribe();
-  }, []);
+      // ── token_hash flow — email confirmation, invite, recovery ──────────
+      if (tokenHash && type) {
+        try {
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: type as 'email' | 'signup' | 'recovery' | 'invite',
+          });
 
-  const signUp = async (email: string, password: string, displayName?: string): Promise<AuthResponse> => {
-    // Using email confirmation flow.
-    // After user clicks the confirmation link, Supabase will finish authentication
-    // via `auth/callback` route (exchangeCodeForSession), and we then redirect.
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          display_name: displayName,
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+          if (error || !data.session) {
+            console.error('verifyOtp error:', error);
+            setStatus('error');
+            setMessage('Confirmation link failed or has expired. Please sign up again.');
+            setTimeout(() => navigate('/auth'), 2500);
+            return;
+          }
 
+          await ensureProfile(data.session);
+          setStatus('success');
+          setMessage('Email confirmed! Taking you in...');
+          setTimeout(() => navigate(redirectAfterSuccess), 500);
+        } catch (e) {
+          console.error('verifyOtp fatal error:', e);
+          setStatus('error');
+          setMessage('Something went wrong. Redirecting...');
+          setTimeout(() => navigate('/auth'), 2000);
+        }
+        return;
+      }
 
-    console.debug('Supabase signUp response:', { data, error });
+      // ── Magic link flow — hash fragment tokens ───────────────────────────
+      if (accessToken && refreshToken) {
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
 
-    if (error) {
-      toast.error(error.message || 'Signup failed. Check the console for details.');
-      return { error };
-    }
+        if (error || !data.session) {
+          setStatus('error');
+          setMessage('Magic link authentication failed. Redirecting...');
+          setTimeout(() => navigate('/auth'), 2000);
+          return;
+        }
 
-    toast.success('Welcome! Please check your email to confirm your account.');
-    return { error: null };
-  };
+        await ensureProfile(data.session);
+        setStatus('success');
+        setMessage('Authenticated successfully! Redirecting...');
+        setTimeout(() => navigate(redirectAfterSuccess), 500);
+        return;
+      }
 
-  const signIn = async (email: string, password: string): Promise<AuthResponse> => {
-    // If Supabase is configured for email confirmations / RLS etc., password sign-in can be blocked.
-    // To reduce “token” errors caused by wrong auth state, always ensure session refresh first.
-    // Refresh session cache to avoid exchanging/using stale auth state.
-    // Note: This does not change the request payload; it only helps prevent
-    // some timing issues during page transitions.
-    await supabase.auth.getSession();
+      // ── PKCE flow — code query param ─────────────────────────────────────
+      if (authCode) {
+        try {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(url.toString());
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: "password",
+          if (error) {
+            console.error('exchangeCodeForSession error:', error);
+            setStatus('error');
+            setMessage('Authentication failed. The link may have expired. Redirecting...');
+            setTimeout(() => navigate('/auth'), 2500);
+            return;
+          }
 
-    }); 
+          const { data: sessionData } = await supabase.auth.getSession();
+          const session = sessionData.session ?? data?.session ?? null;
 
-    if (error) {
-    toast.error(error.message || 'Sign in failed');
-    return { error };
-  }
+          if (!session) {
+            setStatus('error');
+            setMessage('No session found. Redirecting...');
+            setTimeout(() => navigate('/auth'), 2000);
+            return;
+          }
 
-    toast.success('Signed in successfully');
-    return { error: null };
-  };
+          await ensureProfile(session);
+          setStatus('success');
+          setMessage('Authenticated successfully! Redirecting...');
+          setTimeout(() => navigate(redirectAfterSuccess), 500);
+        } catch (e) {
+          console.error('Auth callback fatal error:', e);
+          setStatus('error');
+          setMessage('An unexpected error occurred. Redirecting...');
+          setTimeout(() => navigate('/auth'), 2000);
+        }
+        return;
+      }
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    toast.success('Signed out');
+      // ── No recognizable params ────────────────────────────────────────────
+      navigate('/');
+    };
+
+    handleCallback();
+  }, [navigate, redirectAfterSuccess]);
+
+  const statusStyles: Record<CallbackStatus, string> = {
+    loading: 'text-gray-500',
+    success: 'text-green-600',
+    error: 'text-red-500',
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
-      {children}
-    </AuthContext.Provider>
+    <div className="flex items-center justify-center min-h-screen">
+      <p className={`text-sm font-medium ${statusStyles[status]}`}>
+        {message}
+      </p>
+    </div>
   );
-};
+}
+
+export default AuthCallback;
