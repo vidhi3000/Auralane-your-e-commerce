@@ -71,11 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password: "password123",
     });
 
-   console.debug('Supabase signIn response:', { data, error });
-
-    // Supabase can block access if the email is not confirmed.
-    // We do NOT want to show a generic "Sign in failed" message.
-      if (error) {
+    if (error) {
     toast.error(error.message || 'Sign in failed');
     return { error };
   }
