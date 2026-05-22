@@ -66,34 +66,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // some timing issues during page transitions.
     await supabase.auth.getSession();
 
-
-    const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-
-    console.debug('Supabase signIn response:', { data, error });
+   console.debug('Supabase signIn response:', { data, error });
 
     // Supabase can block access if the email is not confirmed.
     // We do NOT want to show a generic "Sign in failed" message.
-    if (error) {
-      const msg = error.message || '';
-      const isEmailNotConfirmed =
-        msg.toLowerCase().includes('email not confirmed') ||
-        msg.toLowerCase().includes('email not verified') ||
-        msg.toLowerCase().includes('confirm your email') ||
-        msg.toLowerCase().includes('confirmation') ||
-        msg.toLowerCase().includes('confirm');
-
-      if (isEmailNotConfirmed) {
-        toast.success('Welcome! Please check your email to confirm your account.');
-      } else {
-        toast.error(error.message || 'Sign in failed. Check the console for details.');
-      }
-
-      return { error };
-    }
+      if (error) {
+    toast.error(error.message || 'Sign in failed');
+    return { error };
+  }
 
     toast.success('Signed in successfully');
     return { error: null };
