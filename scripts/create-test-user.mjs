@@ -17,7 +17,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
       email: testEmail,
       password: testPassword,
       options: {
-        emailRedirectTo: 'https://localhost:5173/',
+        emailRedirectTo: '${window.location.origin}/auth/callback',
         data: {
           display_name: 'Test User'
         }

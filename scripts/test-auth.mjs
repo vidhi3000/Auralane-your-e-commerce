@@ -14,7 +14,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     const signUp = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: 'https://localhost:5173' }
+      options: { emailRedirectTo: '${window.location.origin}/auth/callback' }
     });
     console.log('signUp:', JSON.stringify(signUp, null, 2));
 
