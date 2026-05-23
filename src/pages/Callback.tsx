@@ -29,7 +29,7 @@ const AuthCallback = () => {
         if (error || !data.session) {
           setStatus('error');
           setMessage('Magic link authentication failed. Redirecting...');
-          setTimeout(() => navigate('/auth'), 2000);
+          setTimeout(() => navigate('/auth'), 1000);
           return;
         }
 
