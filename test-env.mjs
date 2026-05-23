@@ -27,7 +27,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       email,
       password,
       options: {
-        emailRedirectTo: 'http://localhost:5173/auth/callback'
+        emailRedirectTo: 'https://localhost:5173/auth/callback'
       }
     });
 
