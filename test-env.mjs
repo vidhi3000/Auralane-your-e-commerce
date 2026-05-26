@@ -27,7 +27,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       email,
       password,
       options: {
-        emailRedirectTo: '${window.location.origin}/auth/callback'
+        emailRedirectTo: `${window.location.origin}/auth/callback`
       }
     });
 
